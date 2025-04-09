@@ -1,0 +1,6 @@
+.vscode/
+**/*.mp4
+**/*.png
+**/*.h5
+**/*.pdf
+Manifest.toml
