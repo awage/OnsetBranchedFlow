@@ -1,6 +1,6 @@
 using DrWatson 
 @quickactivate
-# include(srcdir("BranchedFlowSim.jl"))
+include(srcdir("BranchedFlowSim.jl"))
 using .BranchedFlowSim
 using ProgressMeter
 using CairoMakie
@@ -31,14 +31,14 @@ end
 function compute_branches(d)
     @unpack  y_init, xs, K, v0,  num_rays, a, dot_radius, softness, θ_range = d
 
-    hst_v_all = Vector{Vector{Float64}}()
-    nb_v_all = Vector{Vector{Float64}}()
-    @showprogress for j = 1:n_avg
+    hst_v_all = Vector{Vector{Float64}}(undef, n_avg)
+    nb_v_all = Vector{Vector{Float64}}(undef, n_avg)
+    @showprogress Threads.@threads for j = 1:n_avg
         V = LatticePotential(a*rotation_matrix(θ_range[j]), dot_radius, v0; softness)
         dy = step(y_init)
-        nb_br_all, hst_all = manifold_track(xs, ys, y_init, dy, V; K)
-        push!(hst_v_all, hst_all)
-        push!(nb_v_all, nb_br_all)
+        nb_v_all[j], hst_v_all[j] = manifold_track(xs, ys, y_init, dy, V; K)
+        # push!(hst_v_all, hst_all)
+        # push!(nb_v_all, nb_br_all)
     end
     return @strdict(nb_v_all, hst_v_all)
 end
